@@ -2,6 +2,7 @@
 # define LEXER_H
 
 #include <stdlib.h>
+#include "../libft/libft.h"
 
 typedef enum e_token_type
 {
