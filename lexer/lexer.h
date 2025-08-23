@@ -21,8 +21,8 @@ typedef struct s_token
 	struct s_token			*next;
 }	t_token;
 
-// Add token to the end of the list
-void	ft_token_add_back(t_token **head, t_token *new_token);
+// lexer.c
 t_token	*ft_tokenize(char *line);
-char	**split_line(char *line);
+// lexer_utils.c
+char	**ft_split_line(char *line);
 #endif

@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 
 int		is_space(int c)
 {
@@ -44,52 +43,56 @@ void	free_lines(char **lines, size_t len)
 	free(lines);
 }
 
+char	*ft_strndup(char *str, size_t len)
+{
+	char	*s;
+	size_t	i;
+
+	if (!str)
+		return (NULL);
+	s = malloc(sizeof(char) * (len + 1));
+	if (!s)
+		return (NULL);
+	i = 0;
+	while (i < len && str[i])
+	{
+		s[i] = str[i];
+		i++;
+	}
+	s[i] = '\0';
+	return (s);
+}
+
 char	*get_word(char *line)
 {
-	char	*word;
 	size_t	len;
-	size_t	i;
 
 	if (!line)
 		return (NULL);
 	len = 0;
-	i = 0;
-	while (line[i] && is_space(line[i]))
-		i++;
-	while (line[i] && !is_space(line[i]))
-	{
+	while (*line && is_space(*line))
+		line++;
+	while (line[len] && !is_space(line[len]))
 		len++;
-		i++;
-	}
-	word = malloc(sizeof(char) * len + 1);
-	if (!word)
-		return (NULL);
-	i = 0;
-	while (i < len)
-	{
-		word[i] = line[i];
-		i++;
-	}
-	word[i] = '\0';
-	return (word);
+	return (ft_strndup(line, len));
 }
 
 char	**ft_split_line(char *line)
 {
 	char	**lines;
-	int		nb_words;
+	size_t	nb_words;
 	size_t	i;
 
 	if (!line)
 		return (NULL);
 	nb_words = count_word(line);
 	lines = malloc(sizeof(char *) * (nb_words + 1));
-	if (!line)
+	if (!lines)
 		return (NULL);
 	i = 0;
 	while (i < nb_words)
 	{
-		while (is_space(*line))
+		while (*line && is_space(*line))
 			line++;
 		lines[i] = get_word(line);
 		if (!lines[i])
@@ -97,7 +100,7 @@ char	**ft_split_line(char *line)
 			free_lines(lines, i);
 			return (NULL);
 		}
-		while (!is_space(*line))
+		while (*line && !is_space(*line))
 			line++;
 		i++;
 	}

@@ -1,98 +1,140 @@
 #include "lexer.h"
 #include <stdio.h>
 
-int	count_words(char **words)
-{
-	int	count;
-
-	if (!words)
-		return (0);
-	count = 0;
-	while (words[count])
-		count++;
-	return (count);
-}
-
-
 t_token_type	get_token_type(char *word)
 {
-	if (!ft_strncmp(word, ">>", 2))
+	if (!ft_strncmp(word, ">>", 2) && ft_strlen(word) == 2)
 		return (APPEND);
-	else if (!ft_strncmp(word, "<<", 2))
+	else if (!ft_strncmp(word, "<<", 2) && ft_strlen(word) == 2)
 		return (HEREDOC);
-	else if (!(ft_strncmp(word, ">", 1)))
+	else if (!(ft_strncmp(word, ">", 1)) && ft_strlen(word) == 1)
 		return (REDIR_OUT);
-	else if (!ft_strncmp(word, "<", 1))
+	else if (!ft_strncmp(word, "<", 1) && ft_strlen(word) == 1)
 		return (REDIR_IN);
-	else if (!ft_strncmp(word, "]", 1))
+	else if (!ft_strncmp(word, "|", 1) && ft_strlen(word) == 1)
 		return (PIPE);
 	else
 		return (WORD);
-
 }
 
 
 int	create_token(t_token **tokens, char *word)
 {
-	t_token	*tok;
+	t_token	*new;
+	t_token	*curr;
 
-	if (!tokens)
+	if (!tokens || !word)
 		return (0);
-	if (!(*tokens))
+	new = malloc(sizeof(t_token));
+	if (!new)
+		return (0);
+	new->value = ft_strdup(word);
+	if (!new->value)
 	{
-		tok = malloc(sizeof(t_token));
-		if (!tok)
-			return (0);
-		(*tokens) = tok;
+		free(new);
+		return (0);
 	}
+	new->type = get_token_type(new->value);
+	new->next = NULL;
+	if (!(*tokens))
+		(*tokens) = new;
 	else
 	{
-		tok = (*tokens);
-		while (tok->next)
-			tok = tok->next;
-		tok->next = malloc(sizeof(t_token));
-		if (!(tok->next))
-			return (0);
-		tok = tok->next;
+		curr = (*tokens);
+		while (curr->next)
+			curr = curr->next;
+		curr->next = new;
 	}
-	tok->value = ft_strdup(word);
-	if (!tok->value)
-	{
-		free(tok);
-		return (0);
-	}
-	tok->type = get_token_type(tok->value);
-	tok->next = NULL;
 	return (1);
+}
+
+void	free_words(char **words)
+{
+	size_t	i;
+
+	if (!words)
+		return ;
+	i = 0;
+	while (words[i])
+	{
+		free(words[i]);
+		i++;
+	}
+	free(words);
+}
+
+void	free_tokens(t_token **head)
+{
+	t_token	*current;
+	t_token	*to_free;
+
+	if (!head)
+		return ;
+	current = (*head);
+	while (current)
+	{
+		to_free = current;
+		current = current->next;
+		free(to_free->value);
+		free(to_free);
+	}
+	(*head) = NULL;
 }
 
 t_token	*ft_tokenize(char *line)
 {
 	char	**words;
 	t_token	*tokens;
-	size_t	len_words;
 	size_t	i;
 
 	if (!line)
 		return (NULL);
-	words = split_line(line);
+	words = ft_split_line(line);
 	if (!words)
 		return (NULL);
 	tokens = NULL;
 	i = 0;
 	while (words[i])
 	{
-		if (!create_token(&tokens, words[i]));
+		if (!create_token(&tokens, words[i]))
 			break ;
 		i++;
 	}
+	free_words(words);
 	return (tokens);
 }
 
+
+
+const char *token_type_to_str(t_token_type type)
+{
+    if (type == WORD) return "WORD";
+    if (type == PIPE) return "PIPE";
+    if (type == REDIR_IN) return "REDIR_IN";
+    if (type == REDIR_OUT) return "REDIR_OUT";
+    if (type == APPEND) return "APPEND";
+    if (type == HEREDOC) return "HEREDOC";
+    return "UNKNOWN";
+}
+
+
 int	main(int argc, char *argv[])
 {
+	t_token	*token;
+	t_token	*current;
+
 	if (argc != 2)
 		return (0);
-	printf("number words: %d\n", count_word(argv[1]));
+	token = ft_tokenize(argv[1]);
+	if (!token)
+		return (1);
+	current = token;
+	while (current)
+	{
+		printf("token type: %s\n", token_type_to_str(current->type));
+		printf("token word: %s\n\n", current->value);
+		current = current->next;
+	}
+	free_tokens(&token);
 	return (0);
 }
