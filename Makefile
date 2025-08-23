@@ -1,4 +1,4 @@
-NAME = lexer
+NAME = lex
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I.
