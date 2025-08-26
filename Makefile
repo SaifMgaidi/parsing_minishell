@@ -1,7 +1,7 @@
 NAME = lex
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I.
+CFLAGS = -g -fsanitize=address -fsanitize=leak -Wall -Wextra -Werror -I.
 
 RM = rm -f
 
