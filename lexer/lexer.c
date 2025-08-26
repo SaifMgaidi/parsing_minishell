@@ -28,7 +28,7 @@ int	create_token(t_token **tokens, char *word)
 	new = malloc(sizeof(t_token));
 	if (!new)
 		return (0);
-	new->value = ft_strdup(word);
+	new->value = word;
 	if (!new->value)
 	{
 		free(new);
@@ -46,21 +46,6 @@ int	create_token(t_token **tokens, char *word)
 		curr->next = new;
 	}
 	return (1);
-}
-
-void	free_words(char **words)
-{
-	size_t	i;
-
-	if (!words)
-		return ;
-	i = 0;
-	while (words[i])
-	{
-		free(words[i]);
-		i++;
-	}
-	free(words);
 }
 
 void	free_tokens(t_token **head)
@@ -83,24 +68,20 @@ void	free_tokens(t_token **head)
 
 t_token	*ft_tokenize(char *line)
 {
-	char	**words;
 	t_token	*tokens;
-	size_t	i;
 
 	if (!line)
 		return (NULL);
-	words = ft_split_line(line);
-	if (!words)
-		return (NULL);
 	tokens = NULL;
-	i = 0;
-	while (words[i])
+	while (*line)
 	{
-		if (!create_token(&tokens, words[i]))
-			break ;
-		i++;
+		if (!create_token(&tokens, get_word(&line)))
+		{
+			free_tokens(&tokens);
+			ft_putstr_fd("Erreur synthaxe\n", 1);
+			return (NULL);
+		}
 	}
-	free_words(words);
 	return (tokens);
 }
 

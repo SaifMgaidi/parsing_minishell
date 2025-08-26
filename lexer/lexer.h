@@ -24,5 +24,5 @@ typedef struct s_token
 // lexer.c
 t_token	*ft_tokenize(char *line);
 // lexer_utils.c
-char	**ft_split_line(char *line);
+char	*get_word(char **line);
 #endif

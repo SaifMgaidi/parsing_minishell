@@ -15,42 +15,6 @@ int		is_quotes(int c)
 	return (0);
 }
 
-int		count_word(char *line)
-{
-	int		count;
-	size_t	i;
-
-	if (!line)
-		return (0);
-	count = 0;
-	i = 0;
-	while (line[i])
-	{
-		while (line[i] && is_space(line[i]))
-			i++;
-		if (line[i])
-			count++;
-		while (line[i] && !is_space(line[i]))
-			i++;
-	}
-	return (count);
-}
-
-void	free_lines(char **lines, size_t len)
-{
-	size_t	i;
-
-	if (!lines)
-		return ;
-	i = 0;
-	while (i < len)
-	{
-		free(lines[i]);
-		i++;
-	}
-	free(lines);
-}
-
 char	*ft_strndup(char *str, size_t len)
 {
 	char	*s;
@@ -119,28 +83,4 @@ char	*get_word(char **line)
 		return (NULL);
 	(*line) = l;
 	return (word);
-}
-
-char	**ft_split_line(char *line)
-{
-	char	**lines;
-	size_t	nb_words;
-	size_t	i;
-
-	if (!line)
-		return (NULL);
-	nb_words = count_word(line);
-	lines = malloc(sizeof(char *) * (nb_words + 1));
-	if (!lines)
-		return (NULL);
-	i = 0;
-	while (i < nb_words)
-	{
-		lines[i] = get_word(&line);
-		if (!lines[i])
-			break ;
-		i++;
-	}
-	lines[i] = NULL;
-	return (lines);
 }
