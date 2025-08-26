@@ -15,6 +15,15 @@ int		is_quotes(int c)
 	return (0);
 }
 
+int		is_operator(int c)
+{
+	if (c == '>' || c == '<')
+		return (1);
+	if (c == '|')
+		return (1);
+	return (0);
+}
+
 char	*ft_strndup(char *str, size_t len)
 {
 	char	*s;
@@ -65,6 +74,13 @@ char	*get_word(char **line)
 	len = 0;
 	while (*l && is_space(*l))
 		l++;
+	if (is_operator(l[len]))
+	{
+		word = ft_strndup(l, 1);
+		l += 1;
+		(*line) = l;
+		return (word);
+	}
 	end_quotes = -1;
 	has_quotes = get_quotes_words(l, &end_quotes);
 	if (has_quotes > 0)
@@ -74,7 +90,8 @@ char	*get_word(char **line)
 	}
 	else if (has_quotes == 0)
 	{
-		while (l[len] && !is_space(l[len]) && !is_quotes(l[len]))
+		while (l[len] && !is_space(l[len]) && !is_quotes(l[len])
+			&& !is_operator(l[len]))
 			len++;
 		word = ft_strndup(l, len);
 		l += len;
