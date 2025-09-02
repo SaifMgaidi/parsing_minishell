@@ -7,7 +7,9 @@ RM = rm -f
 
 SRC_DIR = ./lexer
 SRC = $(SRC_DIR)/lexer.c \
-	  $(SRC_DIR)/lexer_utils.c
+	  $(SRC_DIR)/lexer_utils.c \
+	  $(SRC_DIR)/extract_word.c \
+	  $(SRC_DIR)/utils.c
 
 OBJ = $(SRC:.c=.o)
 

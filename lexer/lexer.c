@@ -17,14 +17,11 @@ t_token_type	get_token_type(char *word)
 		return (WORD);
 }
 
-
 int	create_token(t_token **tokens, char *word)
 {
 	t_token	*new;
 	t_token	*curr;
 
-	if (!tokens || !word)
-		return (0);
 	new = malloc(sizeof(t_token));
 	if (!new)
 		return (0);
@@ -85,21 +82,24 @@ t_token	*ft_tokenize(char *line)
 	return (tokens);
 }
 
-
-
-const char *token_type_to_str(t_token_type type)
+const char	*token_type_to_str(t_token_type type)
 {
-    if (type == WORD) return "WORD";
-    if (type == PIPE) return "PIPE";
-    if (type == REDIR_IN) return "REDIR_IN";
-    if (type == REDIR_OUT) return "REDIR_OUT";
-    if (type == APPEND) return "APPEND";
-    if (type == HEREDOC) return "HEREDOC";
-    return "UNKNOWN";
+	if (type == WORD)
+		return ("WORD");
+	if (type == PIPE)
+		return ("PIPE");
+	if (type == REDIR_IN)
+		return ("REDIR_IN");
+	if (type == REDIR_OUT)
+		return ("REDIR_OUT");
+	if (type == APPEND)
+		return ("APPEND");
+	if (type == HEREDOC)
+		return ("HEREDOC");
+	return ("UNKNOWN");
 }
 
-
-int	main(int argc, char *argv[])
+/*int	main(int argc, char *argv[])
 {
 	t_token	*token;
 	t_token	*current;
@@ -118,4 +118,4 @@ int	main(int argc, char *argv[])
 	}
 	free_tokens(&token);
 	return (0);
-}
+}*/
