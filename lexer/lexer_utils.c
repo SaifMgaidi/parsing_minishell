@@ -15,11 +15,15 @@ int		is_quotes(int c)
 	return (0);
 }
 
-int		is_operator(int c)
+int		is_operator(char *line)
 {
-	if (c == '>' || c == '<')
+	if (!ft_strncmp(line, ">>", 2))
 		return (1);
-	if (c == '|')
+	else if (!ft_strncmp(line, "<<", 2))
+		return (1);
+	if (*line == '>' || *line == '<')
+		return (1);
+	if (*line == '|')
 		return (1);
 	return (0);
 }
@@ -44,60 +48,113 @@ char	*ft_strndup(char *str, size_t len)
 	return (s);
 }
 
-int	get_quotes_words(char *line, int *end)
+int		get_state(int c)
 {
-	int	c_quotes;
-
-	if (!is_quotes(line[0]))
-		return (0);
-	c_quotes = *line;
-	*end = 1;
-	while (line[*end] != c_quotes && line[*end])
-		(*end) += 1;
-	if (line[*end] != c_quotes)
-		return (-1);
-	return (1);
+	if (c == 39)
+		return (1);
+	if (c == 34)
+		return (2);
+	return (0);
 }
 
+char	*extract_word_without_quotes(char **l)
+{
+	char	*word;
+	char	*line;
+	size_t	len;
+
+	if (!l || !(*l))
+		return (NULL);
+	line = (*l);
+	len = 0;
+	while (!is_space(line[len]) && !is_operator(line + len) && line[len])
+		len++;
+	word = ft_strndup(line, len);
+	(*l) += len;
+	return (word);
+}
+
+char	*extract_word_simple_quotes(char **l)
+{
+	char	*word;
+	char	*line;
+	size_t	len;
+
+	if (!l || !(*l))
+		return (NULL);
+	line = (*l);
+	len = 1;
+	while (line[len] != 39 && line[len])
+		len++;
+	word = ft_strndup(line + 1, len - 1);
+	(*l) += len + 1;
+	return (word);
+}
+
+char	*extract_word_double_quotes(char **l)
+{
+	char	*word;
+	char	*line;
+	size_t	len;
+
+	if (!l || !(*l))
+		return (NULL);
+	line = (*l);
+	len = 1;
+	while (line[len] != 34 && line[len])
+		len++;
+	word = ft_strndup(line + 1, len - 1);
+	(*l) += len + 1;
+	return (word);
+}
+
+char	*extract_operator(char **l)
+{
+	char	*word;
+	char	*line;
+	size_t	len;
+
+	if (!l || !(*l))
+		return (NULL);
+	word = NULL;
+	line = (*l);
+	len = 0;
+	if (!ft_strncmp(line, ">>", 2) || !ft_strncmp(line, "<<", 2))
+	{
+		word = ft_strndup(line, 2);
+		len = 2;
+	}
+	else if (*line == '>' || *line == '<' || *line == '|')
+	{
+		word = ft_strndup(line, 1);
+		len = 1;
+	}
+	(*l) += len;
+	return (word);
+}
 
 char	*get_word(char **line)
 {
 	char	*l;
 	char	*word;
-	size_t	len;
-	int		has_quotes;
-	int		end_quotes;
+	int		state;
 
-	if (!line || !(*line) || !(**line))
-		return (NULL);
 	l = (*line);
-	len = 0;
-	while (*l && is_space(*l))
-		l++;
-	if (is_operator(l[len]))
-	{
-		word = ft_strndup(l, 1);
-		l += 1;
-		(*line) = l;
-		return (word);
-	}
-	end_quotes = -1;
-	has_quotes = get_quotes_words(l, &end_quotes);
-	if (has_quotes > 0)
-	{
-		word = ft_strndup(l + 1, end_quotes - 1);
-		l += end_quotes + 1;
-	}
-	else if (has_quotes == 0)
-	{
-		while (l[len] && !is_space(l[len]) && !is_quotes(l[len])
-			&& !is_operator(l[len]))
-			len++;
-		word = ft_strndup(l, len);
-		l += len;
-	}
-	else
+	if (!line || !l)
 		return (NULL);
+	word = NULL;
+	state = get_state(l[0]);
+	if (state == 1)
+		word = extract_word_simple_quotes(line);
+	else if (state == 2)
+		word = extract_word_double_quotes(line);
+	else if (is_operator(l))
+		word = extract_operator(line);
+	else if (state == 0)
+		word = extract_word_without_quotes(line);
+	l = (*line);
+	while (is_space(*l))
+		l++;
 	(*line) = l;
 	return (word);
 }
