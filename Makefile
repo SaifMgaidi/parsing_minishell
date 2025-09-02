@@ -1,15 +1,17 @@
-NAME = lex
+NAME = run
 
 CC = cc
 CFLAGS = -g -fsanitize=address -fsanitize=leak -Wall -Wextra -Werror -I.
 
 RM = rm -f
 
-SRC_DIR = ./lexer
-SRC = $(SRC_DIR)/lexer.c \
-	  $(SRC_DIR)/lexer_utils.c \
-	  $(SRC_DIR)/extract_word.c \
-	  $(SRC_DIR)/utils.c
+SRC_DIR_LEXER = ./lexer
+SRC_DIR_PARSER = ./parser
+SRC = $(SRC_DIR_LEXER)/lexer.c \
+	  $(SRC_DIR_LEXER)/lexer_utils.c \
+	  $(SRC_DIR_LEXER)/extract_word.c \
+	  $(SRC_DIR_LEXER)/utils.c \
+	  $(SRC_DIR_PARSER)/parser.c
 
 OBJ = $(SRC:.c=.o)
 
