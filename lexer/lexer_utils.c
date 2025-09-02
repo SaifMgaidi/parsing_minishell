@@ -63,9 +63,9 @@ char	*extract_word_without_quotes(char **l)
 	char	*line;
 	size_t	len;
 
-	if (!l || !(*l))
-		return (NULL);
 	line = (*l);
+	if (!l || !*line)
+		return (NULL);
 	len = 0;
 	while (!is_space(line[len]) && !is_operator(line + len) && line[len])
 		len++;
