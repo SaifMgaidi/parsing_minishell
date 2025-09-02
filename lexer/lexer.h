@@ -22,6 +22,7 @@ typedef struct s_token
 
 // lexer.c
 t_token	*ft_tokenize(char *line);
+void	free_tokens(t_token **head);
 
 // lexer_utils.c
 char	*get_word(char **line);
