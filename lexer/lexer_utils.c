@@ -86,6 +86,8 @@ char	*extract_word_simple_quotes(char **l)
 	len = 1;
 	while (line[len] != 39 && line[len])
 		len++;
+	if (!line[len])
+		return (NULL);
 	word = ft_strndup(line + 1, len - 1);
 	(*l) += len + 1;
 	return (word);
@@ -103,6 +105,8 @@ char	*extract_word_double_quotes(char **l)
 	len = 1;
 	while (line[len] != 34 && line[len])
 		len++;
+	if (!line[len])
+		return (NULL);
 	word = ft_strndup(line + 1, len - 1);
 	(*l) += len + 1;
 	return (word);
@@ -133,15 +137,28 @@ char	*extract_operator(char **l)
 	return (word);
 }
 
+void	remove_space(char **line)
+{
+	char	*l;
+
+	if (!line || !*line)
+		return ;
+	l = (*line);
+	while (is_space(*l) && *l)
+		l++;
+	(*line) = l;
+}
+
 char	*get_word(char **line)
 {
 	char	*l;
 	char	*word;
 	int		state;
 
-	l = (*line);
-	if (!line || !l)
+	if (!line || !*line)
 		return (NULL);
+	remove_space(line);
+	l = (*line);
 	word = NULL;
 	state = get_state(l[0]);
 	if (state == 1)
@@ -152,9 +169,6 @@ char	*get_word(char **line)
 		word = extract_operator(line);
 	else if (state == 0)
 		word = extract_word_without_quotes(line);
-	l = (*line);
-	while (is_space(*l))
-		l++;
-	(*line) = l;
+	remove_space(line);
 	return (word);
 }
