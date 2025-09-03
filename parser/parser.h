@@ -7,7 +7,10 @@ typedef enum e_node_type
 {
 	NODE_COMMAND,
 	NODE_REDIR_IN,
-	NODE_REDIR_OUT
+	NODE_REDIR_OUT,
+	NODE_APPEND,
+	NODE_HEREDOC,
+	NODE_INVALID
 }	t_node_type;
 
 typedef struct s_command

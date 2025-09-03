@@ -76,11 +76,48 @@ t_token	*find_redirections_token(t_token *tokens)
 			return (tokens);
 		if (tokens->type == REDIR_OUT)
 			return (tokens);
+		if (tokens->type == APPEND)
+			return (tokens);
+		if (tokens->type == HEREDOC)
+			return (tokens);
 		tokens = tokens->next;
 	}
 	return (NULL);
 }
 
+t_ast_node  *parse_simple_command(t_token *tokens, t_token *stop)
+{
+	t_ast_node  *ast_node;
+
+	if (!tokens)
+		return (NULL);
+	ast_node = malloc(sizeof(t_ast_node));
+	if (!ast_node)
+		return (NULL);
+	ft_memset(ast_node, 0, sizeof(t_ast_node));
+	ast_node->type = NODE_COMMAND;
+	ast_node->cmd = create_command(tokens, stop);
+	if (!ast_node->cmd)
+	{
+		free(ast_node);
+		return (NULL);
+	}
+	return (ast_node);
+}
+
+
+t_node_type	get_type_node(t_token *token)
+{
+	if (token->type == REDIR_IN)
+		return (NODE_REDIR_IN);
+	if (token->type == REDIR_OUT)
+		return (NODE_REDIR_OUT);
+	if (token->type == APPEND)
+		return (NODE_APPEND);
+	if (token->type == HEREDOC)
+		return (NODE_HEREDOC);
+	return (NODE_INVALID);
+}
 
 t_ast_node	*parse_command_with_redirections(t_token *tokens)
 {
@@ -94,40 +131,24 @@ t_ast_node	*parse_command_with_redirections(t_token *tokens)
 		return (NULL);
 	ft_memset(ast_node, 0, sizeof(t_ast_node));
 	redir_token = find_redirections_token(tokens);
-	if (redir_token->type == REDIR_IN)
-		ast_node->type = NODE_REDIR_IN;
-	if (redir_token->type == REDIR_OUT)
-		ast_node->type = NODE_REDIR_OUT;
-	ast_node->filename = ft_strdup(redir_token->next->value);
+	ast_node->type = get_type_node(redir_token);
+	if (ast_node->type == NODE_INVALID || !redir_token->next || redir_token->next->type != WORD)
+	{
+		free_ast(ast_node);
+		return (NULL);
+	}
+	
+	if (redir_token->next)
+		ast_node->filename = ft_strdup(redir_token->next->value);
 	if (!ast_node->filename)
 	{
 		free_ast(ast_node);
 		return (NULL);
 	}
-	ast_node->cmd = create_command(tokens, redir_token);
-	if (!ast_node->cmd)
+	ast_node->left = parse_simple_command(tokens, redir_token);
+	if (!ast_node->left)
 	{
 		free_ast(ast_node);
-		return (NULL);
-	}
-	return (ast_node);
-}
-
-t_ast_node  *parse_simple_command(t_token *tokens)
-{
-	t_ast_node  *ast_node;
-
-	if (!tokens)
-		return (NULL);
-	ast_node = malloc(sizeof(t_ast_node));
-	if (!ast_node)
-		return (NULL);
-	ft_memset(ast_node, 0, sizeof(t_ast_node));
-	ast_node->type = NODE_COMMAND;
-	ast_node->cmd = create_command(tokens, NULL);
-	if (!ast_node->cmd)
-	{
-		free(ast_node);
 		return (NULL);
 	}
 	return (ast_node);
@@ -143,6 +164,10 @@ int	has_redirections(t_token *tokens)
 			return (1);
 		if (tokens->type == REDIR_OUT)
 			return (1);
+		if (tokens->type == APPEND)
+			return (1);
+		if (tokens->type == HEREDOC)
+			return (1);
 		tokens = tokens->next;
 	}
 	return (0);
@@ -151,7 +176,7 @@ int	has_redirections(t_token *tokens)
 t_ast_node	*parse_command(t_token *tokens)
 {
 	if (!has_redirections(tokens))
-		return (parse_simple_command(tokens));
+		return (parse_simple_command(tokens, NULL));
 	else
 		return (parse_command_with_redirections(tokens));
 }
@@ -167,8 +192,12 @@ int	main(int argc, char *argv[])
 	if (!tokens)
 		return (1);
 	node = parse_command(tokens);
-	print_ast_node(node);
+	if (!node)
+		ft_putstr_fd("parse error\n", 1);
+	else
+		print_ast_node(node);
 	free_tokens(&tokens);
-	free_ast(node);
+	if (node)
+		free_ast(node);
 	return (0);
 }

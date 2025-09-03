@@ -45,15 +45,28 @@ void	print_ast_node(t_ast_node *node)
 		printf("type node: NODE_REDIR_IN\n");
 	else if (node->type == NODE_REDIR_OUT)
 		printf("type node: NODE_REDIR_OUT\n");
-	printf("args: ");
-	words = node->cmd->args;
-	i = 0;
-	while (words[i])
+	else if (node->type == NODE_APPEND)
+		printf("type node: NODE_APPEND\n");
+	else if (node->type == NODE_HEREDOC)
+		printf("type node: NODE_HEREDOC\n");
+	else if (node->type == NODE_INVALID)
+		printf("type node: NODE_INVALID\n");
+	if (node->cmd)
 	{
-		printf("%s ", words[i]);
-		i++;
+		printf("args: ");
+		words = node->cmd->args;
+		i = 0;
+		while (words[i])
+		{
+			printf("%s ", words[i]);
+			i++;
+		}
+		printf("\n");
 	}
-	printf("\n");
 	if (node->filename)
 		printf("filename: %s\n", node->filename);
+	if (node->left)
+		print_ast_node(node->left);
+	if (node->right)
+		print_ast_node(node->right);
 }
