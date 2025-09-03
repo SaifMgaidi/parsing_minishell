@@ -11,7 +11,8 @@ SRC = $(SRC_DIR_LEXER)/lexer.c \
 	  $(SRC_DIR_LEXER)/lexer_utils.c \
 	  $(SRC_DIR_LEXER)/extract_word.c \
 	  $(SRC_DIR_LEXER)/utils.c \
-	  $(SRC_DIR_PARSER)/parser.c
+	  $(SRC_DIR_PARSER)/parser.c \
+	  $(SRC_DIR_PARSER)/parser_utils.c
 
 OBJ = $(SRC:.c=.o)
 

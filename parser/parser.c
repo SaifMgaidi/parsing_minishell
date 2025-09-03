@@ -1,14 +1,14 @@
 #include "parser.h"
 #include "stdio.h"
 
-size_t	count_token_words(t_token *tokens)
+size_t	count_token_words(t_token *tokens, t_token *stop)
 {
 	size_t	count;
 
 	if (!tokens)
 		return (0);
 	count = 0;
-	while (tokens)
+	while (tokens && tokens != stop)
 	{
 		if (tokens->type == WORD)
 			count++;
@@ -46,7 +46,7 @@ char	**create_args(t_token *tokens, size_t nb_words)
 	return (words);
 }
 
-t_command   *create_command(t_token *tokens)
+t_command   *create_command(t_token *tokens, t_token *stop)
 {
 	t_command	*cmd;
 	size_t		nb_words;
@@ -56,7 +56,7 @@ t_command   *create_command(t_token *tokens)
 	cmd = malloc(sizeof(t_command));
 	if (!cmd)
 		return (NULL);
-	nb_words = count_token_words(tokens);
+	nb_words = count_token_words(tokens, stop);
 	cmd->args = create_args(tokens, nb_words);
 	if (!cmd->args)
 	{
@@ -64,6 +64,53 @@ t_command   *create_command(t_token *tokens)
 		return (NULL);
 	}
 	return (cmd);
+}
+
+t_token	*find_redirections_token(t_token *tokens)
+{
+	if (!tokens)
+		return (NULL);
+	while (tokens)
+	{
+		if (tokens->type == REDIR_IN)
+			return (tokens);
+		if (tokens->type == REDIR_OUT)
+			return (tokens);
+		tokens = tokens->next;
+	}
+	return (NULL);
+}
+
+
+t_ast_node	*parse_command_with_redirections(t_token *tokens)
+{
+	t_ast_node	*ast_node;
+	t_token		*redir_token;
+
+	if (!tokens)
+		return (NULL);
+	ast_node = malloc(sizeof(t_ast_node));
+	if (!ast_node)
+		return (NULL);
+	ft_memset(ast_node, 0, sizeof(t_ast_node));
+	redir_token = find_redirections_token(tokens);
+	if (redir_token->type == REDIR_IN)
+		ast_node->type = NODE_REDIR_IN;
+	if (redir_token->type == REDIR_OUT)
+		ast_node->type = NODE_REDIR_OUT;
+	ast_node->filename = ft_strdup(redir_token->next->value);
+	if (!ast_node->filename)
+	{
+		free_ast(ast_node);
+		return (NULL);
+	}
+	ast_node->cmd = create_command(tokens, redir_token);
+	if (!ast_node->cmd)
+	{
+		free_ast(ast_node);
+		return (NULL);
+	}
+	return (ast_node);
 }
 
 t_ast_node  *parse_simple_command(t_token *tokens)
@@ -75,8 +122,9 @@ t_ast_node  *parse_simple_command(t_token *tokens)
 	ast_node = malloc(sizeof(t_ast_node));
 	if (!ast_node)
 		return (NULL);
+	ft_memset(ast_node, 0, sizeof(t_ast_node));
 	ast_node->type = NODE_COMMAND;
-	ast_node->cmd = create_command(tokens);
+	ast_node->cmd = create_command(tokens, NULL);
 	if (!ast_node->cmd)
 	{
 		free(ast_node);
@@ -85,52 +133,28 @@ t_ast_node  *parse_simple_command(t_token *tokens)
 	return (ast_node);
 }
 
-void	free_command(t_command *cmd)
+int	has_redirections(t_token *tokens)
 {
-	char	**words;
-	size_t	i;
-
-	if (!cmd)
-		return ;
-	words = cmd->args;
-	i = 0;
-	while (words[i])
+	if (!tokens)
+		return (0);
+	while (tokens)
 	{
-		free(words[i]);
-		i++;
+		if (tokens->type == REDIR_IN)
+			return (1);
+		if (tokens->type == REDIR_OUT)
+			return (1);
+		tokens = tokens->next;
 	}
-	free(cmd->args);
-	free(cmd);
+	return (0);
 }
 
-void	free_ast(t_ast_node *node)
+t_ast_node	*parse_command(t_token *tokens)
 {
-	if (!node)
-		return ;
-	free_command(node->cmd);
-	free(node);
+	if (!has_redirections(tokens))
+		return (parse_simple_command(tokens));
+	else
+		return (parse_command_with_redirections(tokens));
 }
-
-void	print_ast_node(t_ast_node *node)
-{
-	char	**words;
-	size_t	i;
-
-	if (!node)
-		return ;
-	if (node->type == NODE_COMMAND)
-		printf("type node: NODE_COMMAND\n");
-	printf("args: ");
-	words = node->cmd->args;
-	i = 0;
-	while (words[i])
-	{
-		printf("%s ", words[i]);
-		i++;
-	}
-	printf("\n");
-}
-
 
 int	main(int argc, char *argv[])
 {
@@ -142,7 +166,7 @@ int	main(int argc, char *argv[])
 	tokens = ft_tokenize(argv[1]);
 	if (!tokens)
 		return (1);
-	node = parse_simple_command(tokens);
+	node = parse_command(tokens);
 	print_ast_node(node);
 	free_tokens(&tokens);
 	free_ast(node);
