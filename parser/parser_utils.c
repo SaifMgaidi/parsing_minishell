@@ -49,6 +49,8 @@ void	print_ast_node(t_ast_node *node)
 		printf("type node: NODE_APPEND\n");
 	else if (node->type == NODE_HEREDOC)
 		printf("type node: NODE_HEREDOC\n");
+	else if (node->type == NODE_PIPE)
+		printf("type node: NODE_PIPE\n");
 	else if (node->type == NODE_INVALID)
 		printf("type node: NODE_INVALID\n");
 	if (node->cmd)
@@ -66,7 +68,13 @@ void	print_ast_node(t_ast_node *node)
 	if (node->filename)
 		printf("filename: %s\n", node->filename);
 	if (node->left)
+	{
+		printf("LEFT: ");
 		print_ast_node(node->left);
+	}
 	if (node->right)
+	{
+		printf("RIGHT ");
 		print_ast_node(node->right);
+	}
 }

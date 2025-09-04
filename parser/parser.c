@@ -85,6 +85,19 @@ t_token	*find_redirections_token(t_token *tokens)
 	return (NULL);
 }
 
+t_token	*find_pipe_token(t_token *tokens)
+{
+	if (!tokens)
+		return (NULL);
+	while (tokens)
+	{
+		if (tokens->type == PIPE)
+			return (tokens);
+		tokens = tokens->next;
+	}
+	return (NULL);
+}
+
 t_ast_node  *parse_simple_command(t_token *tokens, t_token *stop)
 {
 	t_ast_node  *ast_node;
@@ -116,6 +129,8 @@ t_node_type	get_type_node(t_token *token)
 		return (NODE_APPEND);
 	if (token->type == HEREDOC)
 		return (NODE_HEREDOC);
+	if (token->type == PIPE)
+		return (NODE_PIPE);
 	return (NODE_INVALID);
 }
 
@@ -154,6 +169,58 @@ t_ast_node	*parse_command_with_redirections(t_token *tokens)
 	return (ast_node);
 }
 
+t_token	*copy_tokens(t_token *tokens, t_token *stop)
+{
+	t_token	*t;
+
+	if (!tokens || tokens == stop)
+		return (NULL);
+	t = malloc(sizeof(t_token));
+	if (!t)
+		return (NULL);
+	t->type = tokens->type;
+	t->value = ft_strdup(tokens->value);
+	if (!t->value)
+	{
+		free(t);
+		return (NULL);
+	}
+	t->next = copy_tokens(tokens->next, stop);
+	return (t);
+}
+
+t_ast_node	*parser_command_with_pipe(t_token *tokens)
+{
+	t_ast_node	*ast_node;
+	t_token		*pipe_token;
+	t_token		*token_left;
+	t_token		*token_right;
+
+	if (!tokens)
+		return (NULL);
+	ast_node = malloc(sizeof(t_ast_node));
+	if (!ast_node)
+		return (NULL);
+	ft_memset(ast_node, 0, sizeof(t_ast_node));
+	pipe_token = find_pipe_token(tokens);
+	ast_node->type = get_type_node(pipe_token);
+	if (ast_node->type == NODE_INVALID)
+	{
+		free_ast(ast_node);
+		return (NULL);
+	}
+	token_left = copy_tokens(tokens, pipe_token);
+	token_right = copy_tokens(pipe_token->next, NULL);
+	if (token_left)
+		ast_node->left = parse_command(token_left);
+	if (token_right)
+		ast_node->right = parse_command(token_right);
+	free_tokens(&token_left);
+	free_tokens(&token_right);
+	return (ast_node);
+}
+
+
 int	has_redirections(t_token *tokens)
 {
 	if (!tokens)
@@ -173,12 +240,27 @@ int	has_redirections(t_token *tokens)
 	return (0);
 }
 
+int	has_pipe(t_token *tokens)
+{
+	if (!tokens)
+		return (0);
+	while (tokens)
+	{
+		if (tokens->type == PIPE)
+			return (1);
+		tokens = tokens->next;
+	}
+	return (0);
+}
+
 t_ast_node	*parse_command(t_token *tokens)
 {
-	if (!has_redirections(tokens))
-		return (parse_simple_command(tokens, NULL));
-	else
+	if (has_pipe(tokens))
+		return (parser_command_with_pipe(tokens));
+	else if (has_redirections(tokens))
 		return (parse_command_with_redirections(tokens));
+	else
+		return (parse_simple_command(tokens, NULL));
 }
 
 int	main(int argc, char *argv[])

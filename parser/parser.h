@@ -10,6 +10,7 @@ typedef enum e_node_type
 	NODE_REDIR_OUT,
 	NODE_APPEND,
 	NODE_HEREDOC,
+	NODE_PIPE,
 	NODE_INVALID
 }	t_node_type;
 
