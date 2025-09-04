@@ -27,7 +27,8 @@ int	fill_redirections_node(t_ast_node *ast_node, t_token *tokens
 	if (!ast_node || !redir_token)
 		return (0);
 	ast_node->type = get_type_node(redir_token);
-	if (ast_node->type == NODE_INVALID || !redir_token->next)
+	if (ast_node->type == NODE_INVALID || !redir_token->next
+		|| redir_token->next->type != WORD)
 	{
 		free_ast(ast_node);
 		return (0);
