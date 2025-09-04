@@ -1,38 +1,85 @@
 #include "parser.h"
-#include <stdio.h>
 
-void	free_command(t_command *cmd)
+t_token	*find_redirections_token(t_token *tokens, t_token *stop)
 {
-	char	**words;
-	size_t	i;
-
-	if (!cmd)
-		return ;
-	words = cmd->args;
-	i = 0;
-	while (words[i])
+	if (!tokens)
+		return (NULL);
+	while (tokens != stop && tokens)
 	{
-		free(words[i]);
-		i++;
+		if (tokens->type == REDIR_IN)
+			return (tokens);
+		if (tokens->type == REDIR_OUT)
+			return (tokens);
+		if (tokens->type == APPEND)
+			return (tokens);
+		if (tokens->type == HEREDOC)
+			return (tokens);
+		tokens = tokens->next;
 	}
-	free(cmd->args);
-	free(cmd);
+	return (NULL);
 }
 
-void	free_ast(t_ast_node *node)
+t_token	*find_pipe_token(t_token *tokens, t_token *stop)
 {
-	if (!node)
-		return ;
-	free_ast(node->left);
-	free_ast(node->right);
-	if (node->cmd)
-		free_command(node->cmd);
-	if (node->filename)
-		free(node->filename);
-	free(node);
+	if (!tokens)
+		return (NULL);
+	while (tokens != stop && tokens)
+	{
+		if (tokens->type == PIPE)
+			return (tokens);
+		tokens = tokens->next;
+	}
+	return (NULL);
 }
 
-void	print_ast_node(t_ast_node *node)
+t_node_type	get_type_node(t_token *token)
+{
+	if (token->type == REDIR_IN)
+		return (NODE_REDIR_IN);
+	if (token->type == REDIR_OUT)
+		return (NODE_REDIR_OUT);
+	if (token->type == APPEND)
+		return (NODE_APPEND);
+	if (token->type == HEREDOC)
+		return (NODE_HEREDOC);
+	if (token->type == PIPE)
+		return (NODE_PIPE);
+	return (NODE_INVALID);
+}
+
+int	has_redirections(t_token *tokens, t_token *stop)
+{
+	if (!tokens)
+		return (0);
+	while (tokens != stop && tokens)
+	{
+		if (tokens->type == REDIR_IN)
+			return (1);
+		if (tokens->type == REDIR_OUT)
+			return (1);
+		if (tokens->type == APPEND)
+			return (1);
+		if (tokens->type == HEREDOC)
+			return (1);
+		tokens = tokens->next;
+	}
+	return (0);
+}
+
+int	has_pipe(t_token *tokens, t_token *stop)
+{
+	if (!tokens)
+		return (0);
+	while (tokens != stop && tokens)
+	{
+		if (tokens->type == PIPE)
+			return (1);
+		tokens = tokens->next;
+	}
+	return (0);
+}
+
+/*void	print_ast_node(t_ast_node *node)
 {
 	char	**words;
 	size_t	i;
@@ -77,4 +124,4 @@ void	print_ast_node(t_ast_node *node)
 		printf("RIGHT ");
 		print_ast_node(node->right);
 	}
-}
+}*/

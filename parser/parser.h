@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 # define PARSER_H
 
-#include "../lexer/lexer.h"
+# include "../lexer/lexer.h"
 
 typedef enum e_node_type
 {
@@ -31,8 +31,20 @@ typedef struct s_ast_node
 t_ast_node	*parse_command(t_token *tokens, t_token *stop);
 
 // parser_utils.c:
+// void		print_ast_node(t_ast_node *node);
+t_token		*find_redirections_token(t_token *tokens, t_token *stop);
+t_token		*find_pipe_token(t_token *tokens, t_token *stop);
+t_node_type	get_type_node(t_token *token);
+int			has_redirections(t_token *tokens, t_token *stop);
+int			has_pipe(t_token *tokens, t_token *stop);
+
+// parser_tools.c:
+size_t		count_token_words(t_token *tokens, t_token *stop);
+char		**create_args(t_token *tokens, size_t nb_words);
+t_command	*create_command(t_token *tokens, t_token *stop);
+
+// manage_memory.c:
 void		free_ast(t_ast_node *node);
 void		free_command(t_command *cmd);
-void		print_ast_node(t_ast_node *node);
 
 #endif
