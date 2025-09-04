@@ -28,7 +28,7 @@ typedef struct s_ast_node
 	struct s_ast_node	*right;
 }	t_ast_node;
 
-t_ast_node	*parse_command(t_token *tokens);
+t_ast_node	*parse_command(t_token *tokens, t_token *stop);
 
 // parser_utils.c:
 void		free_ast(t_ast_node *node);

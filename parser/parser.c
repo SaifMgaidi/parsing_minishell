@@ -53,10 +53,12 @@ t_command   *create_command(t_token *tokens, t_token *stop)
 
 	if (!tokens)
 		return (NULL);
+	nb_words = count_token_words(tokens, stop);
+	if (!nb_words)
+		return (NULL);
 	cmd = malloc(sizeof(t_command));
 	if (!cmd)
 		return (NULL);
-	nb_words = count_token_words(tokens, stop);
 	cmd->args = create_args(tokens, nb_words);
 	if (!cmd->args)
 	{
@@ -66,11 +68,11 @@ t_command   *create_command(t_token *tokens, t_token *stop)
 	return (cmd);
 }
 
-t_token	*find_redirections_token(t_token *tokens)
+t_token	*find_redirections_token(t_token *tokens, t_token *stop)
 {
 	if (!tokens)
 		return (NULL);
-	while (tokens)
+	while (tokens != stop && tokens)
 	{
 		if (tokens->type == REDIR_IN)
 			return (tokens);
@@ -85,11 +87,11 @@ t_token	*find_redirections_token(t_token *tokens)
 	return (NULL);
 }
 
-t_token	*find_pipe_token(t_token *tokens)
+t_token	*find_pipe_token(t_token *tokens, t_token *stop)
 {
 	if (!tokens)
 		return (NULL);
-	while (tokens)
+	while (tokens != stop && tokens)
 	{
 		if (tokens->type == PIPE)
 			return (tokens);
@@ -134,7 +136,7 @@ t_node_type	get_type_node(t_token *token)
 	return (NODE_INVALID);
 }
 
-t_ast_node	*parse_command_with_redirections(t_token *tokens)
+t_ast_node	*parse_command_with_redirections(t_token *tokens, t_token *stop)
 {
 	t_ast_node	*ast_node;
 	t_token		*redir_token;
@@ -145,7 +147,7 @@ t_ast_node	*parse_command_with_redirections(t_token *tokens)
 	if (!ast_node)
 		return (NULL);
 	ft_memset(ast_node, 0, sizeof(t_ast_node));
-	redir_token = find_redirections_token(tokens);
+	redir_token = find_redirections_token(tokens, stop);
 	ast_node->type = get_type_node(redir_token);
 	if (ast_node->type == NODE_INVALID || !redir_token->next || redir_token->next->type != WORD)
 	{
@@ -169,32 +171,10 @@ t_ast_node	*parse_command_with_redirections(t_token *tokens)
 	return (ast_node);
 }
 
-t_token	*copy_tokens(t_token *tokens, t_token *stop)
-{
-	t_token	*t;
-
-	if (!tokens || tokens == stop)
-		return (NULL);
-	t = malloc(sizeof(t_token));
-	if (!t)
-		return (NULL);
-	t->type = tokens->type;
-	t->value = ft_strdup(tokens->value);
-	if (!t->value)
-	{
-		free(t);
-		return (NULL);
-	}
-	t->next = copy_tokens(tokens->next, stop);
-	return (t);
-}
-
-t_ast_node	*parser_command_with_pipe(t_token *tokens)
+t_ast_node	*parser_command_with_pipe(t_token *tokens, t_token *stop)
 {
 	t_ast_node	*ast_node;
 	t_token		*pipe_token;
-	t_token		*token_left;
-	t_token		*token_right;
 
 	if (!tokens)
 		return (NULL);
@@ -202,30 +182,29 @@ t_ast_node	*parser_command_with_pipe(t_token *tokens)
 	if (!ast_node)
 		return (NULL);
 	ft_memset(ast_node, 0, sizeof(t_ast_node));
-	pipe_token = find_pipe_token(tokens);
+	pipe_token = find_pipe_token(tokens, stop);
 	ast_node->type = get_type_node(pipe_token);
 	if (ast_node->type == NODE_INVALID)
 	{
 		free_ast(ast_node);
 		return (NULL);
 	}
-	token_left = copy_tokens(tokens, pipe_token);
-	token_right = copy_tokens(pipe_token->next, NULL);
-	if (token_left)
-		ast_node->left = parse_command(token_left);
-	if (token_right)
-		ast_node->right = parse_command(token_right);
-	free_tokens(&token_left);
-	free_tokens(&token_right);
+	ast_node->left = parse_command(tokens, pipe_token);
+	ast_node->right = parse_command(pipe_token->next, stop);
+	if (!ast_node->left || !ast_node->right)
+	{
+		free_ast(ast_node);
+		return (NULL);
+	}
 	return (ast_node);
 }
 
 
-int	has_redirections(t_token *tokens)
+int	has_redirections(t_token *tokens, t_token *stop)
 {
 	if (!tokens)
 		return (0);
-	while (tokens)
+	while (tokens != stop && tokens)
 	{
 		if (tokens->type == REDIR_IN)
 			return (1);
@@ -240,11 +219,11 @@ int	has_redirections(t_token *tokens)
 	return (0);
 }
 
-int	has_pipe(t_token *tokens)
+int	has_pipe(t_token *tokens, t_token *stop)
 {
 	if (!tokens)
 		return (0);
-	while (tokens)
+	while (tokens != stop && tokens)
 	{
 		if (tokens->type == PIPE)
 			return (1);
@@ -253,14 +232,14 @@ int	has_pipe(t_token *tokens)
 	return (0);
 }
 
-t_ast_node	*parse_command(t_token *tokens)
+t_ast_node	*parse_command(t_token *tokens, t_token *stop)
 {
-	if (has_pipe(tokens))
-		return (parser_command_with_pipe(tokens));
-	else if (has_redirections(tokens))
-		return (parse_command_with_redirections(tokens));
+	if (has_pipe(tokens, stop))
+		return (parser_command_with_pipe(tokens, stop));
+	else if (has_redirections(tokens, stop))
+		return (parse_command_with_redirections(tokens, stop));
 	else
-		return (parse_simple_command(tokens, NULL));
+		return (parse_simple_command(tokens, stop));
 }
 
 int	main(int argc, char *argv[])
@@ -273,7 +252,7 @@ int	main(int argc, char *argv[])
 	tokens = ft_tokenize(argv[1]);
 	if (!tokens)
 		return (1);
-	node = parse_command(tokens);
+	node = parse_command(tokens, NULL);
 	if (!node)
 		ft_putstr_fd("parse error\n", 1);
 	else
