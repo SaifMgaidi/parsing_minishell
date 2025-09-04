@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include <stdio.h>
 
 t_token_type	get_token_type(char *word)
 {

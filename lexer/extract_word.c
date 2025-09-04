@@ -10,7 +10,8 @@ char	*extract_word_without_quotes(char **l)
 	if (!l || !*line)
 		return (NULL);
 	len = 0;
-	while (!is_space(line[len]) && !is_operator(line + len) && line[len])
+	while (!is_space(line[len]) && !is_operator(line + len)
+		&& !is_quotes(line[len]) && line[len])
 		len++;
 	word = ft_strndup(line, len);
 	(*l) += len;
