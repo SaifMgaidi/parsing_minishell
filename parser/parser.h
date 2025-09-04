@@ -31,7 +31,7 @@ typedef struct s_ast_node
 t_ast_node	*parse_command(t_token *tokens, t_token *stop);
 
 // parser_utils.c:
-void		print_ast_node(t_ast_node *node);
+// void		print_ast_node(t_ast_node *node);
 t_token		*find_redirections_token(t_token *tokens, t_token *stop);
 t_token		*find_pipe_token(t_token *tokens, t_token *stop);
 t_node_type	get_type_node(t_token *token);
