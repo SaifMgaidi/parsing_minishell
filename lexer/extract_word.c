@@ -80,3 +80,24 @@ char	*extract_operator(char **l)
 	(*l) += len;
 	return (word);
 }
+
+char	*extract_variable(char **l)
+{
+	char	*word;
+	char	*line;
+	size_t	len;
+
+	if (!l || !(*l))
+		return (NULL);
+	line = (*l);
+	word = NULL;
+	len = 1;
+	while (!is_space(line[len]) && !is_quotes(line[len])
+		&& !is_operator(line + len) && line[len] != 36 && line[len])
+		len++;
+	word = ft_strndup(line, len);
+	if (!word)
+		return (NULL);
+	(*l) += len;
+	return (word);
+}

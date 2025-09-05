@@ -10,7 +10,8 @@ typedef enum e_token_type
 	REDIR_IN,
 	REDIR_OUT,
 	APPEND,
-	HEREDOC
+	HEREDOC,
+	VARIABLE
 }	t_token_type;
 
 typedef struct s_token
@@ -32,6 +33,7 @@ char	*extract_word_without_quotes(char **l);
 char	*extract_word_simple_quotes(char **l);
 char	*extract_word_double_quotes(char **l);
 char	*extract_operator(char **l);
+char	*extract_variable(char **l);
 
 // utils.c
 int		is_space(int c);

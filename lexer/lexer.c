@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <stdio.h>
 
 t_token_type	get_token_type(char *word)
 {
@@ -12,6 +13,8 @@ t_token_type	get_token_type(char *word)
 		return (REDIR_IN);
 	else if (!ft_strncmp(word, "|", 1) && ft_strlen(word) == 1)
 		return (PIPE);
+	else if (word[0] == 36)
+		return (VARIABLE);
 	else
 		return (WORD);
 }
@@ -95,10 +98,12 @@ const char	*token_type_to_str(t_token_type type)
 		return ("APPEND");
 	if (type == HEREDOC)
 		return ("HEREDOC");
+	if (type == VARIABLE)
+		return ("VARIABLE");
 	return ("UNKNOWN");
 }
 
-/*int	main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
 	t_token	*token;
 	t_token	*current;
@@ -117,4 +122,4 @@ const char	*token_type_to_str(t_token_type type)
 	}
 	free_tokens(&token);
 	return (0);
-}*/
+}

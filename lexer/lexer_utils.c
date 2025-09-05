@@ -6,6 +6,8 @@ int	get_state(int c)
 		return (1);
 	if (c == 34)
 		return (2);
+	if (c == 36)
+		return (3);
 	return (0);
 }
 
@@ -25,6 +27,8 @@ char	*get_word(char **line)
 		word = extract_word_simple_quotes(line);
 	else if (state == 2)
 		word = extract_word_double_quotes(line);
+	else if (state == 3)
+		word = extract_variable(line);
 	else if (is_operator(l))
 		word = extract_operator(line);
 	else if (state == 0)
