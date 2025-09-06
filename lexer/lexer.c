@@ -103,7 +103,7 @@ const char	*token_type_to_str(t_token_type type)
 	return ("UNKNOWN");
 }
 
-int	main(int argc, char *argv[])
+/*int	main(int argc, char *argv[])
 {
 	t_token	*token;
 	t_token	*current;
@@ -122,4 +122,4 @@ int	main(int argc, char *argv[])
 	}
 	free_tokens(&token);
 	return (0);
-}
+}*/

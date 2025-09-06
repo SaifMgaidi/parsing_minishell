@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "stdio.h"
+// #include "stdio.h"
 
 t_ast_node	*parse_simple_command(t_token *tokens, t_token *stop)
 {
