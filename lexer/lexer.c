@@ -13,8 +13,6 @@ t_token_type	get_token_type(char *word)
 		return (REDIR_IN);
 	else if (!ft_strncmp(word, "|", 1) && ft_strlen(word) == 1)
 		return (PIPE);
-	else if (word[0] == 36)
-		return (VARIABLE);
 	else
 		return (WORD);
 }
@@ -45,24 +43,6 @@ int	create_token(t_token **tokens, char *word)
 		curr->next = new;
 	}
 	return (1);
-}
-
-void	free_tokens(t_token **head)
-{
-	t_token	*current;
-	t_token	*to_free;
-
-	if (!head)
-		return ;
-	current = (*head);
-	while (current)
-	{
-		to_free = current;
-		current = current->next;
-		free(to_free->value);
-		free(to_free);
-	}
-	(*head) = NULL;
 }
 
 t_token	*ft_tokenize(char *line)
@@ -98,12 +78,10 @@ const char	*token_type_to_str(t_token_type type)
 		return ("APPEND");
 	if (type == HEREDOC)
 		return ("HEREDOC");
-	if (type == VARIABLE)
-		return ("VARIABLE");
 	return ("UNKNOWN");
 }
 
-/*int	main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
 	t_token	*token;
 	t_token	*current;
@@ -122,4 +100,4 @@ const char	*token_type_to_str(t_token_type type)
 	}
 	free_tokens(&token);
 	return (0);
-}*/
+}

@@ -1,4 +1,4 @@
-NAME = run
+NAME = lex
 
 CC = cc
 CFLAGS = -g -fsanitize=address -fsanitize=leak -Wall -Wextra -Werror -I.
@@ -10,7 +10,9 @@ SRC_DIR_PARSER = ./parser
 SRC = $(SRC_DIR_LEXER)/lexer.c \
 	  $(SRC_DIR_LEXER)/lexer_utils.c \
 	  $(SRC_DIR_LEXER)/extract_word.c \
+	  $(SRC_DIR_LEXER)/extract_word_utils.c \
 	  $(SRC_DIR_LEXER)/utils.c \
+	  $(SRC_DIR_LEXER)/manage_memory.c \
 	  $(SRC_DIR_PARSER)/parser.c \
 	  $(SRC_DIR_PARSER)/parser_utils.c \
 	  $(SRC_DIR_PARSER)/parser_tools.c \

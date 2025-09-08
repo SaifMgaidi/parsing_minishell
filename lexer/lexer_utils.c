@@ -17,7 +17,7 @@ char	*get_word(char **line)
 	char	*word;
 	int		state;
 
-	if (!line || !*line)
+	if (!line || !(*line))
 		return (NULL);
 	remove_space(line);
 	l = (*line);

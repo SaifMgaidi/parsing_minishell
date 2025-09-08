@@ -10,8 +10,7 @@ typedef enum e_token_type
 	REDIR_IN,
 	REDIR_OUT,
 	APPEND,
-	HEREDOC,
-	VARIABLE
+	HEREDOC
 }	t_token_type;
 
 typedef struct s_token
@@ -20,6 +19,13 @@ typedef struct s_token
 	char					*value;
 	struct s_token			*next;
 }	t_token;
+
+typedef struct s_segment
+{
+	int					type;
+	char				*word;
+	struct s_segment	*next;
+}	t_segment;
 
 // lexer.c
 t_token	*ft_tokenize(char *line);
@@ -35,10 +41,20 @@ char	*extract_word_double_quotes(char **l);
 char	*extract_operator(char **l);
 char	*extract_variable(char **l);
 
+// extract_word_utils.c
+t_segment	*create_segments(char *word);
+char		*convert_segments_to_str(t_segment *segments);
+void		free_segments(t_segment *segments);
+
 // utils.c
 int		is_space(int c);
 int		is_quotes(int c);
 int		is_operator(char *line);
 void	remove_space(char **line);
 char	*ft_strndup(char *str, size_t len);
+
+// manage_memory.c
+void	free_tokens(t_token **head);
+void	free_segments(t_segment *segments);
+
 #endif
