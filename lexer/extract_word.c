@@ -31,13 +31,16 @@ char	*extract_word_simple_quotes(char **l)
 	len = 1;
 	while (line[len] != 39 && line[len])
 		len++;
+	if (!line[len])
+    {
+        ft_putstr_fd("minishell: syntax error: unclosed quotes\n", 2);
+        return (NULL);
+    }
 	if (len == 1)
 	{
 		(*l) += len + 1;
 		return (ft_strdup(""));
 	}
-	if (!line[len])
-		return (NULL);
 	word = ft_strndup(line + 1, len - 1);
 	(*l) += len + 1;
 	return (word);
@@ -57,14 +60,22 @@ char	*extract_word_double_quotes(char **l)
 	len = 1;
 	while (line[len] != 34 && line[len])
 		len++;
+	if (!line[len])
+    {
+        ft_putstr_fd("minishell: syntax error: unclosed quotes\n", 2);
+        return (NULL);
+    }
 	if (len == 1)
 	{
 		(*l) += len + 1;
 		return (ft_strdup(""));
 	}
-	if (!line[len])
-		return (NULL);
 	tmp = ft_strndup(line + 1, len - 1);
+	if (ft_strlen(tmp) == 1 && tmp[0] == 36)
+	{
+		(*l) += len + 1;
+		return (tmp);
+	}
 	segments = create_segments(tmp);
 	word = convert_segments_to_str(segments);
 	free(tmp);
@@ -113,6 +124,11 @@ char	*extract_variable(char **l)
 	while (!is_space(line[len]) && !is_quotes(line[len])
 		&& !is_operator(line + len) && line[len] != 36 && line[len])
 		len++;
+	if (len == 1)
+	{
+		(*l) += len;
+		return (ft_strdup("$"));
+	}
 	word = ft_strndup(line + 1, len - 1);
 	if (!word)
 		return (NULL);

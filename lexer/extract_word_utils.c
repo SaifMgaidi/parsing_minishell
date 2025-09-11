@@ -18,8 +18,8 @@ size_t	get_len_segment_word(char *word)
 		len = 0;
 		if (!word[len])
 			return (0);
-		while (word[len + 1] != 36 && !is_space(word[len + 1])
-			&& !is_operator(word + len + 1) && word[len + 1])
+		while ((ft_isalnum(word[len + 1]) || word[len + 1] == '_')
+			&& word[len + 1])
 			len++;
 	}
 	return (len);
@@ -59,6 +59,8 @@ t_segment	*create_segments(char *word)
 		return (NULL);
 	new = malloc(sizeof(t_segment));
 	if (!new)
+		return (NULL);
+	if (!word)
 		return (NULL);
 	len = get_len_segment_word(word);
 	if (!len)

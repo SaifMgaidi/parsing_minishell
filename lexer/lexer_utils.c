@@ -36,3 +36,32 @@ char	*get_word(char **line)
 	remove_space(line);
 	return (word);
 }
+
+/*char    *get_word(char **line)
+{
+    char    *word;
+    char    *temp_word;
+
+    word = ft_strdup("");
+    while (**line && !is_space(**line) && !is_operator(*line))
+    {
+        if (**line == '\'')
+            temp_word = extract_word_simple_quotes(line);
+        else if (**line == '\"')
+            temp_word = extract_word_double_quotes(line);
+        else if (**line == '$')
+            temp_word = extract_variable(line);
+        else
+            temp_word = extract_word_without_quotes(line);
+
+        if (!temp_word)
+        {
+            free(word);
+            return (NULL); // Gérer l'erreur
+        }
+        word = ft_strjoin(word, temp_word); // Une fonction de concaténation qui libère la mémoire
+        if (!word)
+            return (NULL);
+    }
+    return (word);
+}*/
