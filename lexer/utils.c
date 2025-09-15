@@ -9,7 +9,7 @@ int	is_space(int c)
 
 int	is_quotes(int c)
 {
-	if (c == 34 || c == 39)
+	if (c == '\'' || c == '\"')
 		return (1);
 	return (0);
 }

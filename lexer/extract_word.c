@@ -12,7 +12,7 @@ char	*extract_word_without_quotes(char **l)
 		return (NULL);
 	len = 0;
 	while (!is_space(line[len]) && !is_operator(line + len)
-		&& !is_quotes(line[len]) && line[len])
+		&& !is_quotes(line[len]) && line[len] != '$' && line[len])
 		len++;
 	word = ft_strndup(line, len);
 	(*l) += len;
@@ -29,13 +29,10 @@ char	*extract_word_simple_quotes(char **l)
 		return (NULL);
 	line = (*l);
 	len = 1;
-	while (line[len] != 39 && line[len])
+	while (line[len] != '\'' && line[len])
 		len++;
 	if (!line[len])
-    {
-        ft_putstr_fd("minishell: syntax error: unclosed quotes\n", 2);
-        return (NULL);
-    }
+		return (NULL);
 	if (len == 1)
 	{
 		(*l) += len + 1;
@@ -49,37 +46,25 @@ char	*extract_word_simple_quotes(char **l)
 char	*extract_word_double_quotes(char **l)
 {
 	char		*word;
-	char		*tmp;
 	char		*line;
-	t_segment	*segments;
-	size_t	len;
+	size_t		len;
 
 	if (!l || !(*l))
 		return (NULL);
 	line = (*l);
 	len = 1;
-	while (line[len] != 34 && line[len])
+	while (line[len] != '\"' && line[len])
 		len++;
 	if (!line[len])
-    {
-        ft_putstr_fd("minishell: syntax error: unclosed quotes\n", 2);
-        return (NULL);
-    }
+		return (NULL);
 	if (len == 1)
 	{
 		(*l) += len + 1;
 		return (ft_strdup(""));
 	}
-	tmp = ft_strndup(line + 1, len - 1);
-	if (ft_strlen(tmp) == 1 && tmp[0] == 36)
-	{
-		(*l) += len + 1;
-		return (tmp);
-	}
-	segments = create_segments(tmp);
-	word = convert_segments_to_str(segments);
-	free(tmp);
-	free_segments(segments);
+	word = get_word_in_double_quotes(line, len);
+	if (word == NULL)
+		return (NULL);
 	(*l) += len + 1;
 	return (word);
 }
@@ -112,32 +97,23 @@ char	*extract_operator(char **l)
 char	*extract_variable(char **l)
 {
 	char	*word;
-	char	*word_expand;
 	char	*line;
 	size_t	len;
 
 	if (!l || !(*l))
 		return (NULL);
 	line = (*l);
-	word = NULL;
 	len = 1;
-	while (!is_space(line[len]) && !is_quotes(line[len])
-		&& !is_operator(line + len) && line[len] != 36 && line[len])
+	while ((ft_isalnum(line[len]) || line[len] == '_') && line[len])
 		len++;
 	if (len == 1)
 	{
 		(*l) += len;
 		return (ft_strdup("$"));
 	}
-	word = ft_strndup(line + 1, len - 1);
-	if (!word)
+	word = get_word_expand(line, len);
+	if (word == NULL)
 		return (NULL);
-	word_expand = getenv(word);
-	if (word_expand == NULL)
-		word_expand = ft_strdup("");
-	else
-		word_expand = ft_strdup(word_expand);
 	(*l) += len;
-	free(word);
-	return (word_expand);
+	return (word);
 }

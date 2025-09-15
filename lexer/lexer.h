@@ -28,33 +28,45 @@ typedef struct s_segment
 }	t_segment;
 
 // lexer.c
-t_token	*ft_tokenize(char *line);
-void	free_tokens(t_token **head);
+t_token		*ft_tokenize(char *line);
+void		free_tokens(t_token **head);
 
 // lexer_utils.c
-char	*get_word(char **line);
+char		*get_word(char **line);
 
 // extract_word.c
-char	*extract_word_without_quotes(char **l);
-char	*extract_word_simple_quotes(char **l);
-char	*extract_word_double_quotes(char **l);
-char	*extract_operator(char **l);
-char	*extract_variable(char **l);
+char		*extract_word_without_quotes(char **l);
+char		*extract_word_simple_quotes(char **l);
+char		*extract_word_double_quotes(char **l);
+char		*extract_operator(char **l);
+char		*extract_variable(char **l);
 
 // extract_word_utils.c
+char		*get_word_expand(char *line, size_t len);
+char		*get_word_in_double_quotes(char *line, size_t len);
+
+// segments.c
 t_segment	*create_segments(char *word);
 char		*convert_segments_to_str(t_segment *segments);
 void		free_segments(t_segment *segments);
 
+// segments_utils.c
+char		*convert_segments_to_str(t_segment *segments);
+t_segment	*create_new_segment(t_segment *head, char *current, size_t len);
+void		set_word_and_type_segment(t_segment *segment, char *word,
+				size_t len);
+size_t		get_len_segment_word(char *word);
+size_t		get_len_from_segments(t_segment *segments);
+
 // utils.c
-int		is_space(int c);
-int		is_quotes(int c);
-int		is_operator(char *line);
-void	remove_space(char **line);
-char	*ft_strndup(char *str, size_t len);
+int			is_space(int c);
+int			is_quotes(int c);
+int			is_operator(char *line);
+void		remove_space(char **line);
+char		*ft_strndup(char *str, size_t len);
 
 // manage_memory.c
-void	free_tokens(t_token **head);
-void	free_segments(t_segment *segments);
+void		free_tokens(t_token **head);
+void		free_segments(t_segment *segments);
 
 #endif

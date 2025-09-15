@@ -1,67 +1,69 @@
 #include "lexer.h"
+#include <stdio.h>
 
 int	get_state(int c)
 {
-	if (c == 39)
+	if (c == '\'')
 		return (1);
-	if (c == 34)
+	if (c == '\"')
 		return (2);
-	if (c == 36)
+	if (c == '$')
 		return (3);
 	return (0);
 }
 
-char	*get_word(char **line)
+char	*ft_strjoin_and_free(char *s1, char *s2)
 {
-	char	*l;
-	char	*word;
-	int		state;
+	char	*temp;
 
-	if (!line || !(*line))
+	if (!s1 || !s2)
+	{
+		free(s1);
+		free(s2);
 		return (NULL);
-	remove_space(line);
-	l = (*line);
-	word = NULL;
-	state = get_state(l[0]);
-	if (state == 1)
-		word = extract_word_simple_quotes(line);
-	else if (state == 2)
-		word = extract_word_double_quotes(line);
-	else if (state == 3)
-		word = extract_variable(line);
-	else if (is_operator(l))
-		word = extract_operator(line);
-	else if (state == 0)
-		word = extract_word_without_quotes(line);
-	remove_space(line);
-	return (word);
+	}
+	temp = ft_strjoin(s1, s2);
+	free(s1);
+	free(s2);
+	return (temp);
 }
 
-/*char    *get_word(char **line)
+char	*get_full_word(char **line)
 {
-    char    *word;
-    char    *temp_word;
+	char	*full_word;
+	char	*part;
 
-    word = ft_strdup("");
-    while (**line && !is_space(**line) && !is_operator(*line))
-    {
-        if (**line == '\'')
-            temp_word = extract_word_simple_quotes(line);
-        else if (**line == '\"')
-            temp_word = extract_word_double_quotes(line);
-        else if (**line == '$')
-            temp_word = extract_variable(line);
-        else
-            temp_word = extract_word_without_quotes(line);
+	full_word = ft_strdup("");
+	while (**line && !is_space(**line) && !is_operator(*line))
+	{
+		if (**line == '\'')
+			part = extract_word_simple_quotes(line);
+		else if (**line == '\"')
+			part = extract_word_double_quotes(line);
+		else if (**line == '$')
+			part = extract_variable(line);
+		else
+			part = extract_word_without_quotes(line);
+		if (!part)
+		{
+			free(full_word);
+			return (NULL);
+		}
+		full_word = ft_strjoin_and_free(full_word, part);
+		if (!full_word)
+			return (NULL);
+	}
+	return (full_word);
+}
 
-        if (!temp_word)
-        {
-            free(word);
-            return (NULL); // Gérer l'erreur
-        }
-        word = ft_strjoin(word, temp_word); // Une fonction de concaténation qui libère la mémoire
-        if (!word)
-            return (NULL);
-    }
-    return (word);
-}*/
+char	*get_word(char **line)
+{
+	char	*full_word;
+
+	remove_space(line);
+	if (is_operator(*line))
+		return (extract_operator(line));
+	full_word = get_full_word(line);
+	remove_space(line);
+	return (full_word);
+}

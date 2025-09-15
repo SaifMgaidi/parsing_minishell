@@ -57,7 +57,7 @@ t_token	*ft_tokenize(char *line)
 		if (!create_token(&tokens, get_word(&line)))
 		{
 			free_tokens(&tokens);
-			ft_putstr_fd("Erreur synthaxe\n", 1);
+			ft_putstr_fd("minishell: syntax error\n", 2);
 			return (NULL);
 		}
 	}
